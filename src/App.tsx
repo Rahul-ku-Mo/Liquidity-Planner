@@ -3,16 +3,15 @@ import { ReactGrid, CellChange, TextCell } from "@silevis/reactgrid";
 
 import Header from "./layouts/header";
 
-import { getLiquidFunds, getInflows } from "./components/funds";
-
-import { getOutflow } from "./components/funds";
+import { getLiquidFunds, getInflows, getOutflows } from "./constants/";
 
 import {
   LiquidFunds,
   Inflows,
   Outflows,
   CashFlowValue,
-  Color, BackgroundColor
+  Color,
+  BackgroundColor,
 } from "./types/types-interfaces";
 
 import { getRows, getColumns } from "./utils/grid-helper";
@@ -31,7 +30,7 @@ const App = () => {
     getLiquidFunds()
   );
   const [inflows, setInflows] = useState<Inflows[]>(getInflows());
-  const [outflows, setOutflows] = useState<Outflows[]>(getOutflow());
+  const [outflows, setOutflows] = useState<Outflows[]>(getOutflows());
 
   const [cashInArray, setCashInArray] = useState<number[]>([]);
   const [cashOutArray, setCashOutArray] = useState<number[]>([]);
@@ -124,7 +123,6 @@ const App = () => {
 
   const columns = useMemo(getColumns, []);
 
-
   const [color, setColor] = useState<Color>("White");
   const [backgroundColor, setBackgroundColor] =
     useState<BackgroundColor>("Green");
@@ -142,7 +140,12 @@ const App = () => {
       <Header />
 
       <main className="w-full overflow-x-auto">
-        <CustomSelectHeader color={color} backgroundColor={backgroundColor} handleColor={handleColorChange} handleBackgroundColor={handleBackgroundColorChange} />
+        <CustomSelectHeader
+          color={color}
+          backgroundColor={backgroundColor}
+          handleColor={handleColorChange}
+          handleBackgroundColor={handleBackgroundColorChange}
+        />
         <FinancialChart
           cashInArray={cashInArray}
           cashOutArray={cashOutArray}

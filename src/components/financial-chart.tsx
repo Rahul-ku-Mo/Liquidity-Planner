@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+
 import {
   ComposedChart,
   Line,
@@ -10,96 +11,12 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+
 import CustomTooltip from "./custom-tooltip";
 import CustomLegend from "./custom-legend";
 import CustomTick from "./custom-tick";
 
-const data = [
-  {
-    name: "Jan",
-    monthlyInflow: 0,
-    monthlyOutflow: 800,
-    cashbox_bank: 1400,
-    credit_line_overdraft: 490,
-  },
-  {
-    name: "Feb",
-    monthlyInflow: 0,
-    monthlyOutflow: 967,
-    cashbox_bank: 1506,
-    credit_line_overdraft: 590,
-  },
-  {
-    name: "Mar",
-    monthlyInflow: 0,
-    monthlyOutflow: 1098,
-    cashbox_bank: 989,
-    credit_line_overdraft: 350,
-  },
-  {
-    name: "Apr",
-    monthlyInflow: 0,
-    monthlyOutflow: 1200,
-    cashbox_bank: 1228,
-    credit_line_overdraft: 480,
-  },
-  {
-    name: "May",
-    monthlyInflow: 0,
-    monthlyOutflow: 1108,
-    cashbox_bank: 1100,
-    credit_line_overdraft: 460,
-  },
-  {
-    name: "Jun",
-    monthlyInflow: 0,
-    monthlyOutflow: 680,
-    cashbox_bank: 1700,
-    credit_line_overdraft: 380,
-  },
-  {
-    name: "Jul",
-    monthlyInflow: 0,
-    monthlyOutflow: 790,
-    cashbox_bank: 1500,
-    credit_line_overdraft: 420,
-  },
-  {
-    name: "Aug",
-    monthlyInflow: 0,
-    monthlyOutflow: 900,
-    cashbox_bank: 1400,
-    credit_line_overdraft: 560,
-  },
-  {
-    name: "Sep",
-    monthlyInflow: 0,
-    monthlyOutflow: 680,
-    cashbox_bank: 1700,
-    credit_line_overdraft: 380,
-  },
-  {
-    name: "Oct",
-    monthlyInflow: 0,
-    monthlyOutflow: 790,
-    cashbox_bank: 1500,
-    credit_line_overdraft: 420,
-  },
-  {
-    name: "Nov",
-    monthlyInflow: 0,
-    monthlyOutflow: 900,
-    cashbox_bank: 1400,
-    credit_line_overdraft: 560,
-  },
-  {
-    name: "Dec",
-    monthlyInflow: 0,
-    monthlyOutflow: 680.12,
-    cashbox_bank: 1700,
-    credit_line_overdraft: -380,
-  },
-];
+import { data } from "../constants/index";
 
 const FinancialChart = ({
   cashInArray,
