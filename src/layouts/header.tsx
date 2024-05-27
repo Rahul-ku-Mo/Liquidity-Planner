@@ -1,9 +1,10 @@
+import { Typography } from "@mui/material";
 
 
 const Header = () => {
   return (
     <div className="header">
-       <h2>Financial Planner</h2>
+       <Typography variant="h5">Financial Planner</Typography>
     </div>
   );
 };

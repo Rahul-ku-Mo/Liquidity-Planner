@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-
+import { useCallback } from "react";
 type TCustomLegend = {
   color: string;
   value: string;
@@ -16,14 +16,13 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
   activeSeries,
   setActiveSeries,
 }) => {
-  const handleLegendClick = (dataKey: string) => {
-  
+  const handleLegendClick = useCallback((dataKey: string) => {
     if (activeSeries.includes(dataKey)) {
       setActiveSeries(activeSeries.filter((el) => el !== dataKey));
     } else {
       setActiveSeries((prev) => [...prev, dataKey]);
     }
-  };
+  }, [activeSeries, setActiveSeries]);
 
   return (
     <ul className="flex gap-3 pb-4 justify-end">

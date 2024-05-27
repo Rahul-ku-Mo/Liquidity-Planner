@@ -1,5 +1,4 @@
-import { Box } from "@mui/material";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   ComposedChart,
   Line,
@@ -109,109 +108,105 @@ const FinancialChart = ({
 }: {
   cashInArray: Array<number>;
   cashOutArray: Array<number>;
-  cashbox: Array<string>;
+  cashbox: Array<number>;
 }) => {
   const [activeSeries, setActiveSeries] = useState<Array<string>>([]);
 
-  // Get all the 'name' values from the data for the XAxis ticks
-  //   const xTicks = data.map((item) => item.name);
+  const [barHovered, setBarHovered] = useState<boolean>(false);
 
-  data.forEach(
-    (
-      item: {
-        monthlyInflow: number;
-        monthlyOutflow: number;
-        credit_line_overdraft: number;
-        cashbox_bank: number;
-      },
-      index: number
-    ) => {
-      item.monthlyInflow = cashInArray[index];
-      item.monthlyOutflow = cashOutArray[index];
-      item.credit_line_overdraft = Math.floor(Math.random() * 50000) + 1;
-      item.cashbox_bank = Number(cashbox[index]);
+  const handleMouseEnter = useCallback(() => setBarHovered(true), []);
+  const handleMouseLeave = useCallback(() => setBarHovered(false), []);
 
-      console.log(cashbox[index]);
-
-      return item;
-    }
-  );
+  const memoizedData = useMemo(() => {
+    return data.map((item, index) => {
+      return {
+        ...item,
+        monthlyInflow: cashInArray[index],
+        monthlyOutflow: cashOutArray[index],
+        credit_line_overdraft: Math.floor(Math.random() * 50000) + 1,
+        cashbox_bank: Number(cashbox[index]),
+      };
+    });
+  }, [cashInArray, cashOutArray, cashbox]);
 
   return (
-    <Box
-      sx={{
-        height: "480px",
-      }}
-    >
-      <div style={{ width: "100%", height: "100%", overflowX: "auto" }}>
-        <ResponsiveContainer height="100%" className="w-full overflow-x-scroll">
-          <ComposedChart
-            height={400}
-            data={data}
-            margin={{
-              top: 20,
-              right: 80,
-              bottom: 20,
-              left: 20,
-            }}
-          >
-            <CartesianGrid stroke="rgb(100 116 139)" strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              scale="band"
-              tick={<CustomTick />}
-              tickCount={12}
-            />
-            <YAxis tickCount={20} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              align="right"
-              verticalAlign="top"
-              iconSize={10}
-              content={
-                <CustomLegend
-                  activeSeries={activeSeries}
-                  setActiveSeries={setActiveSeries}
-                />
-              }
-            />
+    <div className=" h-[480px]">
+      <ResponsiveContainer height="100%" width="100%" minWidth={2160}>
+        <ComposedChart
+          height={400}
+          data={memoizedData}
+          margin={{
+            top: 20,
+            right: 160,
+            bottom: 20,
+            left: 140,
+          }}
+        >
+          <CartesianGrid stroke="rgb(100 116 139)" strokeDasharray="3 3" />
+          <XAxis
+            dataKey="name"
+            scale="band"
+            tick={<CustomTick />}
+            tickCount={12}
+          />
+          <YAxis tickCount={20} />
+          <Tooltip
+            active={barHovered}
+            cursor={false}
+            content={<CustomTooltip activeSeries={activeSeries} />}
+          />
+          <Legend
+            align="right"
+            verticalAlign="top"
+            iconSize={10}
+            content={
+              <CustomLegend
+                activeSeries={activeSeries}
+                setActiveSeries={setActiveSeries}
+              />
+            }
+          />
 
-            <Bar
-              hide={activeSeries.includes("monthlyInflow")}
-              dataKey="monthlyInflow"
-              barSize={30}
-              fill="#00b853"
-              onMouseOver={(e) => {
-                console.log(e);
-              }}
-            />
+          <Bar
+            hide={activeSeries.includes("monthlyInflow")}
+            dataKey="monthlyInflow"
+            barSize={30}
+            fill="#00b853"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
 
-            <Bar
-              hide={activeSeries.includes("monthlyOutflow")}
-              dataKey="monthlyOutflow"
-              barSize={30}
-              fill="rgb(239 68 68)"
-            />
-            <Line
-              type="monotone"
-              hide={activeSeries.includes("credit_line_overdraft")}
-              dataKey="credit_line_overdraft"
-              stroke="#ff7300"
-              strokeWidth={3}
-              dot={{ stroke: "red", strokeWidth: 2 }}
-            />
-            <Line
-              type="linear"
-              dataKey="cashbox_bank"
-              hide={activeSeries.includes("cashbox_bank")}
-              stroke="#8e24aa"
-              strokeWidth={2}
-              dot={{ stroke: "#8e24aa", strokeWidth: 6 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </Box>
+          <Bar
+            hide={activeSeries.includes("monthlyOutflow")}
+            dataKey="monthlyOutflow"
+            barSize={30}
+            fill="rgb(239 68 68)"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+          <Line
+            type="monotone"
+            hide={activeSeries.includes("credit_line_overdraft")}
+            dataKey="credit_line_overdraft"
+            stroke="#ff7300"
+            strokeWidth={4}
+            dot={{ stroke: "red", strokeWidth: 6 }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+          <Line
+            type="linear"
+            dataKey="cashbox_bank"
+            hide={activeSeries.includes("cashbox_bank")}
+            stroke="#8e24aa"
+            strokeWidth={4}
+            dot={{ stroke: "#8e24aa", strokeWidth: 6 }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
