@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 
-import { Color, BackgroundColor } from "../types/types-interfaces";
+import { Color, BackgroundColor } from "../../types/types-interfaces";
 
 interface CustomHeaderProps {
   BackgroundColor: BackgroundColor;

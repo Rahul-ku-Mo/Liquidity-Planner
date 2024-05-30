@@ -6,7 +6,7 @@ import {
   SelectChangeEvent,
   Stack,
 } from "@mui/material";
-import { Color, BackgroundColor } from "../types/types-interfaces";
+import { Color, BackgroundColor } from "../../types/types-interfaces";
 import React from "react";
 
 type CustomSelectHeaderProps = {
