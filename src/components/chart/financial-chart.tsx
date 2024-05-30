@@ -13,19 +13,21 @@ import {
 } from "recharts";
 
 import CustomTooltip from "./custom-tooltip";
-import CustomLegend from "./custom-legend";
+import CustomLegend from "./custom-legend"
 import CustomTick from "./custom-tick";
 
-import { data } from "../constants/index";
+import { data } from "../../constants/index";
 
 const FinancialChart = ({
   cashInArray,
   cashOutArray,
   cashbox,
+  cumulativeCashArray,
 }: {
   cashInArray: Array<number>;
   cashOutArray: Array<number>;
   cashbox: Array<number>;
+  cumulativeCashArray: Array<number>;
 }) => {
   const [activeSeries, setActiveSeries] = useState<Array<string>>([]);
 
@@ -40,11 +42,11 @@ const FinancialChart = ({
         ...item,
         monthlyInflow: cashInArray[index],
         monthlyOutflow: cashOutArray[index],
-        credit_line_overdraft: Math.floor(Math.random() * 50000) + 1,
+        credit_line_overdraft: cumulativeCashArray[index],
         cashbox_bank: Number(cashbox[index]),
       };
     });
-  }, [cashInArray, cashOutArray, cashbox]);
+  }, [cashInArray, cashOutArray, cashbox, cumulativeCashArray]);
 
   return (
     <div className=" h-[480px]">

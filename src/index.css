@@ -38,12 +38,12 @@ h6 {
 }
 
 .header-cell {
-  font-weight: 700;
+  font-weight: 600;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 20px !important;
-  letter-spacing: -1.2px;
+  font-size: 16px !important;
+  letter-spacing: -1px;
 }
 
 .header-sub-cell {

@@ -3,7 +3,7 @@ import { ReactGrid, CellChange, TextCell } from "@silevis/reactgrid";
 
 import Header from "./layouts/header";
 
-import { getLiquidFunds, getInflows, getOutflows } from "./constants/";
+import { getLiquidFunds, getInflows, getOutflows } from "./utils/fund-helper";
 
 import {
   LiquidFunds,
@@ -16,25 +16,24 @@ import {
 
 import { getRows, getColumns } from "./utils/grid-helper";
 
-import FinancialChart from "./components/financial-chart";
-import CustomHeader from "./components/custom-header";
+import FinancialChart from "./components/chart/financial-chart";
+import CustomHeader from "./components/chart/custom-header";
 import { headerRow } from "./utils/grid-helper";
 
 import { SelectChangeEvent } from "@mui/material";
 
 import "@silevis/reactgrid/styles.css";
-import CustomSelectHeader from "./components/custom-select-header";
+import CustomSelectHeader from "./components/chart/custom-select-header";
 
 const App = () => {
-  const [liquidFunds, setLiquidFunds] = useState<LiquidFunds[]>(
-    getLiquidFunds()
-  );
-  const [inflows, setInflows] = useState<Inflows[]>(getInflows());
-  const [outflows, setOutflows] = useState<Outflows[]>(getOutflows());
+  const [liquidFunds, setLiquidFunds] = useState<LiquidFunds>(getLiquidFunds());
+  const [inflows, setInflows] = useState<Inflows>(getInflows());
+  const [outflows, setOutflows] = useState<Outflows>(getOutflows());
 
   const [cashInArray, setCashInArray] = useState<number[]>([]);
   const [cashOutArray, setCashOutArray] = useState<number[]>([]);
   const [cashbox, setCashbox] = useState<number[]>([]);
+  const [cumulativeCashArray, setCumulativeCashArray] = useState<number[]>([]);
 
   const handleFundsChange = (changes: CellChange<TextCell>[]) => {
     changes.forEach((change) => {
@@ -42,68 +41,82 @@ const App = () => {
       const fieldName = change.columnId as string;
 
       if (fundIndex.startsWith("inflow")) {
-        const inflowEntries = Object.entries(inflows[0]);
+        const inflowEntries = Object.entries(inflows);
 
-        inflowEntries.map(([key, values]) => {
+        inflowEntries.forEach(([key, values]) => {
           const inflowFund = values.find(
             (item: CashFlowValue) =>
               fundIndex.includes(item.id) && fieldName.includes(item.month)
           );
 
           if (inflowFund) {
-            const newInflows = inflows.map((fund: Inflows) => {
-              const newValues = fund[key as keyof Inflows].map(
-                (item: CashFlowValue) => {
-                  // Add a type assertion to keyof Inflows
-                  if (item.id === fundIndex && item.month === fieldName) {
-                    return { ...item, value: Number(change.newCell.text) };
-                  }
-                  return item;
+            const newValues = inflows[key as keyof Inflows].map(
+              (item: CashFlowValue) => {
+                if (item.id === fundIndex && item.month === fieldName) {
+                  return { ...item, value: Number(change.newCell.text) };
                 }
-              );
+                return item;
+              }
+            );
 
-              return { ...fund, [key]: newValues };
-            });
-
-            setInflows(newInflows);
+            inflows[key as keyof Inflows] = newValues;
           }
         });
-      } else if (fundIndex.startsWith("outflow")) {
-        const outflowEntries = Object.entries(outflows[0]);
 
-        outflowEntries.map(([key, values]) => {
+        setInflows({ ...inflows });
+        console.log("InFlow", ":", inflows);
+      } else if (fundIndex.startsWith("outflow")) {
+        const outflowEntries = Object.entries(outflows);
+
+        outflowEntries.forEach(([key, values]) => {
           const outflowFund = values.find(
             (item: CashFlowValue) =>
               fundIndex.includes(item.id) && fieldName.includes(item.month)
           );
 
           if (outflowFund) {
-            const newOutflows = outflows.map((fund) => {
-              const newValues = fund[key as keyof Outflows].map(
-                (item: CashFlowValue) => {
-                  // Add a type assertion to keyof Outflows
-                  if (item.id === fundIndex && item.month === fieldName) {
-                    return { ...item, value: Number(change.newCell.text) };
-                  }
-                  return item;
+            const newValues = outflows[key as keyof Outflows].map(
+              (item: CashFlowValue) => {
+                if (item.id === fundIndex && item.month === fieldName) {
+                  return { ...item, value: Number(change.newCell.text) };
                 }
-              );
+                return item;
+              }
+            );
 
-              return { ...fund, [key]: newValues };
-            });
-
-            setOutflows(newOutflows);
+            outflows[key as keyof Outflows] = newValues;
           }
         });
+
+        setOutflows({ ...outflows });
+
+        console.log("OutFlow", ":", outflows);
       } else {
-        const newLiquidFunds = liquidFunds.map((fund) => {
-          if (fund.id === fundIndex && fund.month === fieldName) {
-            return { ...fund, value: Number(change.newCell.text) };
+        const liquidFundsEntries = Object.entries(liquidFunds);
+
+        liquidFundsEntries.forEach(([key, values]) => {
+          const liquidFund = values.find(
+            (item: CashFlowValue) =>
+              fundIndex.includes(item.id) && fieldName.includes(item.month)
+          );
+
+          if (liquidFund) {
+            const newValues = liquidFunds[key as keyof typeof liquidFunds].map(
+              (item: CashFlowValue) => {
+                if (item.id === fundIndex && item.month === fieldName) {
+                  return { ...item, value: Number(change.newCell.text) };
+                }
+                return item;
+              }
+            );
+
+            liquidFunds[key as keyof typeof liquidFunds] = newValues;
           }
-          return fund;
         });
 
-        setLiquidFunds(newLiquidFunds);
+        setLiquidFunds({ ...liquidFunds });
+
+        console.log("Cashbox/Bank", ":", liquidFunds);
       }
     });
   };
@@ -116,7 +129,8 @@ const App = () => {
         outflows,
         setCashbox,
         setCashInArray,
-        setCashOutArray
+        setCashOutArray,
+        setCumulativeCashArray
       ),
     [liquidFunds, inflows, outflows]
   );
@@ -150,6 +164,7 @@ const App = () => {
           cashInArray={cashInArray}
           cashOutArray={cashOutArray}
           cashbox={cashbox}
+          cumulativeCashArray={cumulativeCashArray}
         />
         <div className="flex text-lg font-bold justify-between items-center ml-[6.2rem] min-w-[2100px]">
           {headerRow.cells.map((cell, index) =>
