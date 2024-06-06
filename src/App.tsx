@@ -1,9 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ReactGrid, CellChange, TextCell } from "@silevis/reactgrid";
 
-import Header from "./layouts/header";
+import { SelectChangeEvent } from "@mui/material";
 
-import { getLiquidFunds, getInflows, getOutflows } from "./utils/fund-helper";
+import {
+  getLiquidFunds,
+  ArrayToInflowObject,
+  ArrayToOutflowObject,
+  ArrayToLiquidFundObject,
+  CropIdAndSource,
+} from "./utils/fund-helper";
 
 import {
   LiquidFunds,
@@ -14,26 +20,94 @@ import {
   BackgroundColor,
 } from "./types/types-interfaces";
 
+import { headerRow } from "./utils/grid-helper";
 import { getRows, getColumns } from "./utils/grid-helper";
 
-import FinancialChart from "./components/chart/financial-chart";
+import Header from "./layouts/header";
 import CustomHeader from "./components/chart/custom-header";
-import { headerRow } from "./utils/grid-helper";
-
-import { SelectChangeEvent } from "@mui/material";
+import FinancialChart from "./components/chart/financial-chart";
+import CustomSelectHeader from "./components/chart/custom-select-header";
 
 import "@silevis/reactgrid/styles.css";
-import CustomSelectHeader from "./components/chart/custom-select-header";
 
 const App = () => {
   const [liquidFunds, setLiquidFunds] = useState<LiquidFunds>(getLiquidFunds());
-  const [inflows, setInflows] = useState<Inflows>(getInflows());
-  const [outflows, setOutflows] = useState<Outflows>(getOutflows());
+  const [inflows, setInflows] = useState<Inflows>({} as Inflows);
+  const [outflows, setOutflows] = useState<Outflows>({} as Outflows);
+
+  const [liquidFundsArray, setLiquidFundsArray] = useState<
+    { source: string; id: string }[]
+  >([]);
+  const [inflowsArray, setInflowsArray] = useState<
+    { source: string; id: string }[]
+  >([]);
+  const [outflowsArray, setOutflowsArray] = useState<
+    { source: string; id: string }[]
+  >([]);
 
   const [cashInArray, setCashInArray] = useState<number[]>([]);
   const [cashOutArray, setCashOutArray] = useState<number[]>([]);
   const [cashbox, setCashbox] = useState<number[]>([]);
   const [cumulativeCashArray, setCumulativeCashArray] = useState<number[]>([]);
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchInflows = async () => {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/funds/inflows`
+      );
+
+      const { data } = await response.json();
+      console.log(data);
+
+      setInflowsArray(CropIdAndSource(data));
+
+      const inflowObject: Inflows = ArrayToInflowObject(
+        data
+      ) as unknown as Inflows;
+
+      setInflows(inflowObject);
+    };
+
+    const fetchOutflows = async () => {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/funds/outflows`
+      );
+
+      const { data } = await response.json();
+      console.log(data);
+
+      setOutflowsArray(CropIdAndSource(data));
+
+      const outflowObject: Outflows = ArrayToOutflowObject(
+        data
+      ) as unknown as Outflows;
+
+      setOutflows(outflowObject);
+    };
+
+    const fetchLiquidFunds = async () => {
+      const response = await fetch(
+        `http://localhost:3000/api/v1/funds/liquidFunds`
+      );
+
+      const { data } = await response.json();
+      console.log(data);
+
+      setLiquidFundsArray(CropIdAndSource(data));
+
+      const liquidFundsObject: LiquidFunds = ArrayToLiquidFundObject(
+        data
+      ) as unknown as LiquidFunds;
+
+      setLiquidFunds(liquidFundsObject);
+    };
+
+    Promise.all([fetchLiquidFunds(), fetchInflows(), fetchOutflows()]).finally(
+      () => setIsLoading(false)
+    );
+  }, []);
 
   const handleFundsChange = (changes: CellChange<TextCell>[]) => {
     changes.forEach((change) => {
@@ -60,6 +134,34 @@ const App = () => {
             );
 
             inflows[key as keyof Inflows] = newValues;
+
+            const inflowAmountArray: number[] = newValues.map(
+              (item) => item.value
+            );
+
+            const inflowSource = inflowsArray.find(
+              (item) => item.source === key
+            )?.id;
+
+            //call an api
+            const updateInflows = async () => {
+              const updateResponse = await fetch(
+                `http://localhost:3000/api/v1/funds/inflows/${inflowSource}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    amount: inflowAmountArray,
+                  }),
+                }
+              );
+
+              console.log(updateResponse);
+            };
+
+            updateInflows();
           }
         });
 
@@ -85,6 +187,34 @@ const App = () => {
             );
 
             outflows[key as keyof Outflows] = newValues;
+
+            const outflowAmountArray: number[] = newValues.map(
+              (item) => item.value
+            );
+
+            const outflowSource = outflowsArray.find(
+              (item) => item.source === key
+            )?.id;
+
+            //call an api
+            const updateOutflows = async () => {
+              const updateResponse = await fetch(
+                `http://localhost:3000/api/v1/funds/inflows/${outflowSource}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    amount: outflowAmountArray,
+                  }),
+                }
+              );
+
+              console.log(updateResponse);
+            };
+
+            updateOutflows();
           }
         });
 
@@ -111,6 +241,34 @@ const App = () => {
             );
 
             liquidFunds[key as keyof typeof liquidFunds] = newValues;
+
+            const LiquidFundAmountArray: number[] = newValues.map(
+              (item) => item.value
+            );
+
+            const LiquidFundSource = liquidFundsArray.find(
+              (item) => item.source === key
+            )?.id;
+
+            //call an api
+            const updateLiquidFundflows = async () => {
+              const updateResponse = await fetch(
+                `http://localhost:3000/api/v1/funds/liquidFunds/${LiquidFundSource}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    balance: LiquidFundAmountArray,
+                  }),
+                }
+              );
+
+              console.log(updateResponse);
+            };
+
+            updateLiquidFundflows();
           }
         });
 
@@ -148,6 +306,20 @@ const App = () => {
   const handleBackgroundColorChange = (event: SelectChangeEvent) => {
     setBackgroundColor(event.target.value as BackgroundColor);
   };
+
+  if (isLoading)
+    return (
+      <>
+        <div className="absolute inset-0 flex items-center justify-center text-center">
+          <div className="size-20 rounded-full animate-spin bg-emerald-600 relative">
+            <div className="size-[4.9rem] bg-white rounded-full text-xs absolute"></div>
+          </div>
+        </div>
+        <div className="text-sm absolute inset-0 justify-center items-center flex font-bold tracking-tighter text-emerald-500">
+          Loading..
+        </div>
+      </>
+    );
 
   return (
     <>

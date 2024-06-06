@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inflows, Outflows, LiquidFunds } from "../types/types-interfaces";
 
 export const months = [
@@ -15,6 +16,76 @@ export const months = [
   "Dec",
 ];
 
+export const ArrayToInflowObject = (
+  input: Array<{ id: string; source: string; amount: number[] }>
+) => {
+  return input.reduce((acc: { [key: string]: unknown }, curr, idx) => {
+    acc[curr.source] = curr.amount.map((value: number, i: number) => {
+      return {
+        id: `inflow-0-${idx}`,
+        month: months[i],
+        value: value,
+      };
+    });
+    return acc;
+  }, {});
+};
+
+export const ArrayToOutflowObject = (
+  input: Array<{ id: string; source: string; amount: number[] }>
+) => {
+  return input.reduce((acc: { [key: string]: unknown }, curr, idx) => {
+    acc[curr.source] = curr.amount.map((value: number, i: number) => {
+      return {
+        id: `outflow-0-${idx}`,
+        month: months[i],
+        value: value,
+      };
+    });
+    return acc;
+  }, {});
+};
+
+export const ArrayToLiquidFundObject = (
+  input: Array<{ id: string; source: string; balance: number[] }>
+) => {
+  return input.reduce((acc: { [key: string]: unknown }, curr, idx) => {
+    acc[curr.source] = curr.balance.map((value: number, i: number) => {
+      return {
+        id: `cashbox-0-${idx}`,
+        month: months[i],
+        value: value,
+      };
+    });
+    return acc;
+  }, {});
+};
+
+export const InflowObjectToArray = (input: {
+  [key: string]: Array<{ id: string; month: string; value: number }>;
+}): Array<{ id: string; source: string; amount: number[] }> => {
+  return Object.entries(input).map(([source, values]) => {
+    return {
+      id: values[0].id.split("-")[2],
+      source,
+      amount: values.map((value) => value.value),
+    };
+  });
+};
+
+export const OutflowObjectToArray = InflowObjectToArray; // The structure is the same, so we can reuse the function
+
+export const LiquidFundObjectToArray = (input: {
+  [key: string]: Array<{ id: string; month: string; value: number }>;
+}): Array<{ id: string; source: string; balance: number[] }> => {
+  return Object.entries(input).map(([source, values]) => {
+    return {
+      id: values[0].id.split("-")[2],
+      source,
+      balance: values.map((value) => value.value),
+    };
+  });
+};
 export const getInflows = (): Inflows => {
   const data = {
     Sales: months.map((month) => ({
@@ -51,7 +122,7 @@ export const getLiquidFunds = (): LiquidFunds => ({
   cashbox: months.map((month) => ({
     id: `cashbox-0-0`,
     month,
-    value: Math.floor(Math.random() * 90000) + 1,
+    value: 0,
   })),
 });
 
@@ -140,4 +211,13 @@ export const getOutflows = (): Outflows => {
   };
 
   return data;
+};
+
+export const CropIdAndSource = (input: any) => {
+  return input.map((item: any) => {
+    return {
+      id: item.id,
+      source: item.source,
+    };
+  });
 };
