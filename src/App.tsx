@@ -59,7 +59,6 @@ const App = () => {
       );
 
       const { data } = await response.json();
-      console.log(data);
 
       setInflowsArray(CropIdAndSource(data));
 
@@ -76,7 +75,6 @@ const App = () => {
       );
 
       const { data } = await response.json();
-      console.log(data);
 
       setOutflowsArray(CropIdAndSource(data));
 
@@ -93,7 +91,6 @@ const App = () => {
       );
 
       const { data } = await response.json();
-      console.log(data);
 
       setLiquidFundsArray(CropIdAndSource(data));
 
