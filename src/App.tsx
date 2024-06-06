@@ -55,7 +55,7 @@ const App = () => {
   useEffect(() => {
     const fetchInflows = async () => {
       const response = await fetch(
-        `http://localhost:3000/api/v1/funds/inflows`
+        `${import.meta.env.VITE_APP_API_URL}/funds/inflows`
       );
 
       const { data } = await response.json();
@@ -72,7 +72,7 @@ const App = () => {
 
     const fetchOutflows = async () => {
       const response = await fetch(
-        `http://localhost:3000/api/v1/funds/outflows`
+        `${import.meta.env.VITE_APP_API_URL}/funds/outflows`
       );
 
       const { data } = await response.json();
@@ -89,7 +89,7 @@ const App = () => {
 
     const fetchLiquidFunds = async () => {
       const response = await fetch(
-        `http://localhost:3000/api/v1/funds/liquidFunds`
+        `${import.meta.env.VITE_APP_API_URL}/funds/liquidFunds`
       );
 
       const { data } = await response.json();
@@ -146,7 +146,9 @@ const App = () => {
             //call an api
             const updateInflows = async () => {
               const updateResponse = await fetch(
-                `http://localhost:3000/api/v1/funds/inflows/${inflowSource}`,
+                `${
+                  import.meta.env.VITE_APP_API_URL
+                }/funds/inflows/${inflowSource}`,
                 {
                   method: "PUT",
                   headers: {
@@ -199,7 +201,9 @@ const App = () => {
             //call an api
             const updateOutflows = async () => {
               const updateResponse = await fetch(
-                `http://localhost:3000/api/v1/funds/inflows/${outflowSource}`,
+                `${
+                  import.meta.env.VITE_APP_API_URL
+                }/funds/inflows/${outflowSource}`,
                 {
                   method: "PUT",
                   headers: {
@@ -253,7 +257,9 @@ const App = () => {
             //call an api
             const updateLiquidFundflows = async () => {
               const updateResponse = await fetch(
-                `http://localhost:3000/api/v1/funds/liquidFunds/${LiquidFundSource}`,
+                `${
+                  import.meta.env.VITE_APP_API_URL
+                }/funds/liquidFunds/${LiquidFundSource}`,
                 {
                   method: "PUT",
                   headers: {
